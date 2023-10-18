@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { PlannerContext } from '../App';
 
 // .pac-container {
 //     background-color: #151515;
@@ -15,28 +16,22 @@ import { v4 as uuidv4 } from 'uuid';
 //    }
 
 function Planner() {
-  const [stops, setStops] = useState([
-    { id: 'orig', address: '', coordinates: { lat: 0, lng: 0 } },
-    { id: 'dest', address: '', coordinates: { lat: 0, lng: 0 } },
-  ]);
+  const { stops, addStopApp, stopChangedApp, updateStopApp, removeStopApp } =
+    useContext(PlannerContext);
   const inputRefs = useRef({});
   const autoCompleteRefs = useRef({});
-  const prevStopsLength = useRef({ prevLength: stops.length, latestId: '' });
+  const prevStopsLength = useRef({
+    prevLength: stops.length,
+    latestId: 'orig',
+  });
 
   const addStop = (e) => {
     e.preventDefault();
     const newId = uuidv4();
     prevStopsLength.current.latestId = newId;
-    setStops((s) => {
-      return [
-        ...s.slice(s[0], s.length - 1),
-        { id: newId, address: '', coordinates: { lat: 0, lng: 0 } },
-        s[s.length - 1],
-      ];
-    });
+    addStopApp(newId);
   };
   const addAutocomplete = (inputRef, id) => {
-    console.log('truenutni ac id je ' + id + ' a input ref je ' + inputRef);
     if (window.google) {
       autoCompleteRefs.current[id] = new window.google.maps.places.Autocomplete(
         inputRef,
@@ -48,59 +43,34 @@ function Planner() {
         const place = autoCompleteRefs.current[id].getPlace();
         const latitude = place.geometry.location.lat();
         const longitude = place.geometry.location.lng();
-        // console.log(latitude, longitude, place.name);
-        setStops((prev) => {
-          return prev.map((stop) => {
-            if (stop.id == id)
-              return {
-                ...stop,
-                address: place.name,
-                coordinates: { lat: latitude, lng: longitude },
-              };
-            return stop;
-          });
-        });
+        console.log(latitude, longitude, place.name);
+        stopChangedApp(id, place.name, latitude, longitude);
       });
     }
   };
   const updateInputStop = (id, value) => {
-    setStops((prev) => {
-      return prev.map((stop) => {
-        if (stop.id == id) return { ...stop, address: value };
-        return stop;
-      });
-    });
+    updateStopApp(id, value);
   };
   const handleClick = (id, e) => {
-    console.log(stops);
-    console.log(id);
     e.preventDefault();
     inputRefs.current[id].focus();
   };
   const handleDelete = (id, e) => {
     e.preventDefault();
+    prevStopsLength.current.latestId = 'orig';
     window.google.maps.event.clearInstanceListeners(inputRefs.current[id]);
-    setStops((stops) => stops.filter((stop) => stop.id !== id));
+    removeStopApp(id);
   };
   const handleShowRoute = () => {};
 
-  //TODO: work on this focus feature
-  //   useEffect(() => {
-  //     inputRefs.current[stops[stops.length - 2].id].focus();
-  //   }, [stops.length]);
-
   useEffect(() => {
-    console.log(prevStopsLength.current);
     if (stops.length > prevStopsLength.current.prevLength) {
       addAutocomplete(
         inputRefs.current[prevStopsLength.current.latestId],
         prevStopsLength.current.latestId
       );
+      inputRefs.current[prevStopsLength.current.latestId].focus();
     }
-    //mozda implementiraj remove autocomplete
-    // else if (stops.length < prevStopsLength.current.prevLength) {
-
-    // }
     prevStopsLength.current.prevLength = stops.length;
   }, [stops.length]);
 
