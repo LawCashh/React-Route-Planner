@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { PlannerContext } from '../App';
 
@@ -24,12 +24,30 @@ function Planner() {
     prevLength: stops.length,
     latestId: 'orig',
   });
+  const [inputValues, setInputValues] = useState({});
+  const [inputErrors, setInputErrors] = useState({
+    orig: { hasError: false, message: '', changed: false },
+    dest: { hasError: false, message: '', changed: false },
+  });
+  const updateInternalInputValue = (id, value) => {
+    setInputValues((prevInputValues) => ({
+      ...prevInputValues,
+      [id]: value,
+    }));
+  };
 
   const addStop = (e) => {
     e.preventDefault();
     const newId = uuidv4();
     prevStopsLength.current.latestId = newId;
     addStopApp(newId);
+    //takodje dodaj novi error za novi stop
+    setInputErrors((prev) => {
+      return {
+        ...prev,
+        [newId]: { hasError: false, message: '', changed: false },
+      };
+    });
   };
   const addAutocomplete = (inputRef, id) => {
     if (window.google) {
@@ -43,8 +61,16 @@ function Planner() {
         const place = autoCompleteRefs.current[id].getPlace();
         const latitude = place.geometry.location.lat();
         const longitude = place.geometry.location.lng();
-        console.log(latitude, longitude, place.name);
         stopChangedApp(id, place.name, latitude, longitude);
+        setInputValues((prev) => {
+          return { ...prev, [id]: place.name };
+        });
+        setInputErrors((prev) => {
+          return {
+            ...prev,
+            [id]: { hasError: false, message: '', changed: true },
+          };
+        });
       });
     }
   };
@@ -60,7 +86,26 @@ function Planner() {
     prevStopsLength.current.latestId = 'orig';
     window.google.maps.event.clearInstanceListeners(inputRefs.current[id]);
     removeStopApp(id);
+    setInputValues((prev) => {
+      const newValues = { ...prev };
+      delete newValues[id];
+      return newValues;
+    });
+    setInputErrors((prev) => {
+      const newValues = { ...prev };
+      delete newValues[id];
+      return newValues;
+    });
   };
+  const createInputError = (id, message, changed) => {
+    setInputErrors((prev) => {
+      return {
+        ...prev,
+        [id]: { hasError: true, message: message, changed: changed },
+      };
+    });
+  };
+
   const handleShowRoute = () => {};
 
   useEffect(() => {
@@ -89,8 +134,24 @@ function Planner() {
             <input
               ref={(element) => (inputRefs.current[stop.id] = element)}
               id={`input-${stop.id}`}
-              value={stops[index].address}
-              onChange={(e) => updateInputStop(stop.id, e.target.value)}
+              value={inputValues[stop.id] || ''}
+              onChange={(e) => {
+                createInputError(
+                  stop.id,
+                  'Izaberite mjesto',
+                  inputErrors[stop.id].changed
+                );
+                const newValue = e.target.value;
+                updateInternalInputValue(stop.id, newValue);
+              }}
+              onBlur={() => {
+                if (inputValues[stop.id] === undefined)
+                  createInputError(
+                    stop.id,
+                    'Izaberite mjesto',
+                    inputErrors[stop.id].changed
+                  );
+              }}
             />
             {stop.id !== 'orig' && stop.id !== 'dest' && (
               <button onClick={(e) => handleDelete(stop.id, e)}>

@@ -26,12 +26,13 @@ function App() {
   const stopChangedApp = (id, name, latitude, longitude) => {
     setStops((prev) => {
       return prev.map((stop) => {
-        if (stop.id == id)
+        if (stop.id == id) {
           return {
             ...stop,
             address: name,
             coordinates: { lat: latitude, lng: longitude },
           };
+        }
         return stop;
       });
     });
