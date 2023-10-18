@@ -19,4 +19,15 @@ const defaultCheck = (stops) => {
   return rez;
 };
 
+export function atLeastOneNotFull(stops) {
+  let notFull = false;
+  stops.forEach((el) => {
+    if (el.coordinates.lat === 0 && el.coordinates.lng === 0) {
+      notFull = true;
+      return notFull;
+    }
+  });
+  return notFull;
+}
+
 export default defaultCheck;

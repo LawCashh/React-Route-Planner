@@ -1,6 +1,7 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { PlannerContext } from '../App';
+import { atLeastOneNotFull } from '../utils/checkFreshCoordinates';
 
 // .pac-container {
 //     background-color: #151515;
@@ -16,8 +17,14 @@ import { PlannerContext } from '../App';
 //    }
 
 function Planner() {
-  const { stops, addStopApp, stopChangedApp, updateStopApp, removeStopApp } =
-    useContext(PlannerContext);
+  const {
+    stops,
+    addStopApp,
+    stopChangedApp,
+    updateStopApp,
+    removeStopApp,
+    map,
+  } = useContext(PlannerContext);
   const inputRefs = useRef({});
   const autoCompleteRefs = useRef({});
   const prevStopsLength = useRef({
@@ -29,6 +36,7 @@ function Planner() {
     orig: { hasError: false, message: '', changed: false },
     dest: { hasError: false, message: '', changed: false },
   });
+  const [showRouteError, setShowRouteError] = useState(false);
   const updateInternalInputValue = (id, value) => {
     setInputValues((prevInputValues) => ({
       ...prevInputValues,
@@ -106,7 +114,43 @@ function Planner() {
     });
   };
 
-  const handleShowRoute = () => {};
+  const handleShowRoute = (e) => {
+    e.preventDefault();
+    if (window.google) {
+      const directionsService = new window.google.maps.DirectionsService();
+      const directionsRenderer = new window.google.maps.DirectionsRenderer({
+        map: map,
+      });
+      const waypoints = stops
+        .filter(
+          (stop) => stop.coordinates.lat !== 0 && stop.coordinates.lng !== 0
+        )
+        .map((stop) => ({
+          location: new window.google.maps.LatLng(
+            stop.coordinates.lat,
+            stop.coordinates.lng
+          ),
+        }));
+
+      const origin = waypoints.shift();
+      const destination = waypoints.pop();
+
+      const request = {
+        origin,
+        destination,
+        waypoints,
+        travelMode: window.google.maps.TravelMode.DRIVING,
+      };
+
+      directionsService.route(request, (response, status) => {
+        if (status === 'OK') {
+          directionsRenderer.setDirections(response);
+        } else {
+          console.error('Directions request failed:', status);
+        }
+      });
+    }
+  };
 
   useEffect(() => {
     if (stops.length > prevStopsLength.current.prevLength) {
@@ -163,7 +207,12 @@ function Planner() {
         );
       })}
       <button onClick={addStop}>Add a Stop</button>
-      <button onClick={handleShowRoute}>Show Route</button>
+      <button
+        onClick={handleShowRoute}
+        disabled={atLeastOneNotFull(stops) ? true : false}
+      >
+        Show Route
+      </button>
     </form>
   );
 }

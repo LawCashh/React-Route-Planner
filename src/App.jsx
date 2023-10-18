@@ -1,4 +1,4 @@
-import { createContext, useState } from 'react';
+import { createContext, useRef, useState } from 'react';
 import { LoadScript } from '@react-google-maps/api';
 
 import Planner from './components/Planner';
@@ -7,6 +7,8 @@ import Map from './components/Map';
 export const PlannerContext = createContext();
 const libraries = ['places'];
 function App() {
+  const mapRef = useRef();
+  const [map, setMap] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [stops, setStops] = useState([
     { id: 'orig', address: '', coordinates: { lat: 0, lng: 0 } },
@@ -64,6 +66,9 @@ function App() {
         stopChangedApp,
         updateStopApp,
         removeStopApp,
+        mapRef,
+        map,
+        setMap,
       }}
     >
       {isLoaded && <h1>loaded</h1>}

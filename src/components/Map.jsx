@@ -14,10 +14,7 @@ const center = {
 };
 
 const Map = memo(function Map() {
-  const { stops } = useContext(PlannerContext);
-
-  const [map, setMap] = useState(null);
-  const mapRef = useRef();
+  const { stops, mapRef, map, setMap } = useContext(PlannerContext);
 
   useEffect(() => {
     if (map) {
