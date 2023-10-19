@@ -1,9 +1,8 @@
 import { GoogleMap, MarkerF } from "@react-google-maps/api";
 import { PlannerContext } from "../App";
-import { memo, useContext, useEffect, useRef, useState } from "react";
+import { memo, useContext, useEffect } from "react";
 import defaultCheck from "../utils/checkFreshCoordinates";
-//TODO: nemoj da se refreshuje komponenta na kucanje gradova, samo unos,
-// Testiraj i vidi za brisanje origin ili destination teksta(ostaje pin)
+
 const mapContainerStyle = {
   width: "100%",
   height: "100%",
@@ -34,7 +33,7 @@ const Map = memo(function Map() {
           window.google.maps.event.addListenerOnce(
             map,
             "bounds_changed",
-            function (event) {
+            function () {
               if (this.getZoom()) {
                 this.setZoom(4);
               }
@@ -48,7 +47,7 @@ const Map = memo(function Map() {
           window.google.maps.event.addListenerOnce(
             map,
             "bounds_changed",
-            function (event) {
+            function () {
               if (this.getZoom()) {
                 this.setZoom(Math.min(this.getZoom(), 15));
               }

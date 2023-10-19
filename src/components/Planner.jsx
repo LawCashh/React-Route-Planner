@@ -21,7 +21,7 @@ function Planner() {
     orig: { hasError: false, message: "", changed: false },
     dest: { hasError: false, message: "", changed: false },
   });
-  const [showRouteError, setShowRouteError] = useState(false);
+  // const [showRouteError, setShowRouteError] = useState(false);
   const updateInternalInputValue = (id, value) => {
     setInputValues((prevInputValues) => ({
       ...prevInputValues,
@@ -99,6 +99,11 @@ function Planner() {
     });
   };
 
+  const handleEnterKeyPress = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+    }
+  };
   const handleShowRoute = (e) => {
     e.preventDefault();
     if (window.google) {
@@ -161,7 +166,7 @@ function Planner() {
       <h1 className="text-3xl font-semibold text-emerald-500">
         Plan your route
       </h1>
-      {stops.map((stop, index) => {
+      {stops.map((stop) => {
         return (
           <div
             key={stop.id}
@@ -211,6 +216,7 @@ function Planner() {
                       inputErrors[stop.id].changed,
                     );
                 }}
+                onKeyDown={(e) => handleEnterKeyPress(e)}
               />
               {stop.id !== "orig" && stop.id !== "dest" && (
                 <button
