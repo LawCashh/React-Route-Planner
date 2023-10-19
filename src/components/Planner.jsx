@@ -1,7 +1,8 @@
-import { useContext, useEffect, useRef, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import { PlannerContext } from '../App';
-import { atLeastOneNotFull } from '../utils/checkFreshCoordinates';
+import { useContext, useEffect, useRef, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
+import { PlannerContext } from "../App";
+import { atLeastOneNotFull } from "../utils/checkFreshCoordinates";
+import deleteIcon from "../assets/images/x.svg";
 
 // .pac-container {
 //     background-color: #151515;
@@ -29,12 +30,12 @@ function Planner() {
   const autoCompleteRefs = useRef({});
   const prevStopsLength = useRef({
     prevLength: stops.length,
-    latestId: 'orig',
+    latestId: "orig",
   });
   const [inputValues, setInputValues] = useState({});
   const [inputErrors, setInputErrors] = useState({
-    orig: { hasError: false, message: '', changed: false },
-    dest: { hasError: false, message: '', changed: false },
+    orig: { hasError: false, message: "", changed: false },
+    dest: { hasError: false, message: "", changed: false },
   });
   const [showRouteError, setShowRouteError] = useState(false);
   const updateInternalInputValue = (id, value) => {
@@ -53,7 +54,7 @@ function Planner() {
     setInputErrors((prev) => {
       return {
         ...prev,
-        [newId]: { hasError: false, message: '', changed: false },
+        [newId]: { hasError: false, message: "", changed: false },
       };
     });
   };
@@ -62,10 +63,10 @@ function Planner() {
       autoCompleteRefs.current[id] = new window.google.maps.places.Autocomplete(
         inputRef,
         {
-          fields: ['address_components', 'geometry', 'icon', 'name'],
-        }
+          fields: ["address_components", "geometry", "icon", "name"],
+        },
       );
-      autoCompleteRefs.current[id].addListener('place_changed', async () => {
+      autoCompleteRefs.current[id].addListener("place_changed", async () => {
         const place = autoCompleteRefs.current[id].getPlace();
         const latitude = place.geometry.location.lat();
         const longitude = place.geometry.location.lng();
@@ -76,22 +77,22 @@ function Planner() {
         setInputErrors((prev) => {
           return {
             ...prev,
-            [id]: { hasError: false, message: '', changed: true },
+            [id]: { hasError: false, message: "", changed: true },
           };
         });
       });
     }
   };
-  const updateInputStop = (id, value) => {
-    updateStopApp(id, value);
-  };
-  const handleClick = (id, e) => {
-    e.preventDefault();
-    inputRefs.current[id].focus();
-  };
+  // const updateInputStop = (id, value) => {
+  //   updateStopApp(id, value);
+  // };
+  // const handleClick = (id, e) => {
+  //   e.preventDefault();
+  //   inputRefs.current[id].focus();
+  // };
   const handleDelete = (id, e) => {
     e.preventDefault();
-    prevStopsLength.current.latestId = 'orig';
+    prevStopsLength.current.latestId = "orig";
     window.google.maps.event.clearInstanceListeners(inputRefs.current[id]);
     removeStopApp(id);
     setInputValues((prev) => {
@@ -123,12 +124,12 @@ function Planner() {
       });
       const waypoints = stops
         .filter(
-          (stop) => stop.coordinates.lat !== 0 && stop.coordinates.lng !== 0
+          (stop) => stop.coordinates.lat !== 0 && stop.coordinates.lng !== 0,
         )
         .map((stop) => ({
           location: new window.google.maps.LatLng(
             stop.coordinates.lat,
-            stop.coordinates.lng
+            stop.coordinates.lng,
           ),
         }));
 
@@ -143,10 +144,10 @@ function Planner() {
       };
 
       directionsService.route(request, (response, status) => {
-        if (status === 'OK') {
+        if (status === "OK") {
           directionsRenderer.setDirections(response);
         } else {
-          console.error('Directions request failed:', status);
+          console.error("Directions request failed:", status);
         }
       });
     }
@@ -156,7 +157,7 @@ function Planner() {
     if (stops.length > prevStopsLength.current.prevLength) {
       addAutocomplete(
         inputRefs.current[prevStopsLength.current.latestId],
-        prevStopsLength.current.latestId
+        prevStopsLength.current.latestId,
       );
       inputRefs.current[prevStopsLength.current.latestId].focus();
     }
@@ -164,50 +165,87 @@ function Planner() {
   }, [stops.length]);
 
   useEffect(() => {
-    addAutocomplete(inputRefs.current['orig'], 'orig');
-    addAutocomplete(inputRefs.current['dest'], 'dest');
+    addAutocomplete(inputRefs.current["orig"], "orig");
+    addAutocomplete(inputRefs.current["dest"], "dest");
   }, []);
 
   return (
-    <form>
-      <h1>Plan your route</h1>
-      <label>Source:</label>
+    <form className="flex min-h-[400px] w-[19rem] flex-col items-center justify-evenly rounded-lg bg-teal-100 p-3">
+      <h1 className="text-3xl font-semibold text-emerald-500">
+        Plan your route
+      </h1>
       {stops.map((stop, index) => {
         return (
-          <div key={stop.id}>
-            <input
-              ref={(element) => (inputRefs.current[stop.id] = element)}
-              id={`input-${stop.id}`}
-              value={inputValues[stop.id] || ''}
-              onChange={(e) => {
-                createInputError(
-                  stop.id,
-                  'Izaberite mjesto',
-                  inputErrors[stop.id].changed
-                );
-                const newValue = e.target.value;
-                updateInternalInputValue(stop.id, newValue);
-              }}
-              onBlur={() => {
-                if (inputValues[stop.id] === undefined)
+          <div
+            key={stop.id}
+            className={`${
+              stops.length > 4 ? "my-1" : "my-0"
+            } justify-betwe flex w-full flex-col items-center`}
+          >
+            {" "}
+            <div
+              className={`relative ${
+                stops.length > 4 ? "my-1" : "my-0"
+              } flex w-full flex-row items-center justify-between text-emerald-800`}
+            >
+              {stop.id === "orig" && (
+                <label htmlFor="input-orig">Origin:</label>
+              )}
+              {stop.id === "dest" && (
+                <label htmlFor="input-dest">Destination:</label>
+              )}
+              {stop.id !== "dest" && stop.id !== "orig" && (
+                <label htmlFor="input-dest">Stop:</label>
+              )}
+              <input
+                className="rounded-md p-1"
+                ref={(element) => (inputRefs.current[stop.id] = element)}
+                id={`input-${stop.id}`}
+                value={inputValues[stop.id] || ""}
+                onChange={(e) => {
                   createInputError(
                     stop.id,
-                    'Izaberite mjesto',
-                    inputErrors[stop.id].changed
+                    "Izaberite mjesto",
+                    inputErrors[stop.id].changed,
                   );
-              }}
-            />
-            {stop.id !== 'orig' && stop.id !== 'dest' && (
-              <button onClick={(e) => handleDelete(stop.id, e)}>
-                Remove Me
-              </button>
+                  const newValue = e.target.value;
+                  updateInternalInputValue(stop.id, newValue);
+                }}
+                onBlur={() => {
+                  if (inputValues[stop.id] === undefined)
+                    createInputError(
+                      stop.id,
+                      "Izaberite mjesto",
+                      inputErrors[stop.id].changed,
+                    );
+                }}
+              />
+              {stop.id !== "orig" && stop.id !== "dest" && (
+                <button
+                  className="absolute right-1"
+                  onClick={(e) => handleDelete(stop.id, e)}
+                >
+                  <img className="h-6 w-6" src={deleteIcon} alt="" />
+                </button>
+              )}
+            </div>
+            {inputErrors[stop.id].hasError && (
+              <p>{inputErrors[stop.id].message}</p>
             )}
-            <button onClick={(e) => handleClick(stop.id, e)}>Focus Me</button>
+            {/* <button onClick={(e) => handleClick(stop.id, e)}>Focus Me</button> */}
           </div>
         );
       })}
-      <button onClick={addStop}>Add a Stop</button>
       <button
+        onClick={addStop}
+        className={`${
+          stops.length > 4 ? "my-2" : "my-0"
+        } w-36 rounded-full bg-emerald-500 p-2 text-white`}
+      >
+        Add a Stop
+      </button>
+      <button
+        className="inset w-36 rounded-full bg-emerald-500 p-2 text-white disabled:cursor-not-allowed disabled:bg-gray-400"
         onClick={handleShowRoute}
         disabled={atLeastOneNotFull(stops) ? true : false}
       >
