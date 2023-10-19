@@ -63,8 +63,8 @@ const Map = memo(function Map() {
 
   return (
     <div
-      className="xs:h-96 xs:w-96 h-[19rem] w-[19rem] overflow-hidden rounded-lg
-    border-2 border-emerald-500 sm:w-[600px] md:w-[700px] lg:h-[500px] lg:w-[500px]"
+      className="xs:h-96 xs:w-96 ml-3 mt-2 h-[19rem] w-[19rem] overflow-hidden rounded-lg border-2
+    border-emerald-500 sm:w-[600px] md:w-[700px] lg:h-[500px] lg:w-[500px] xl:ml-8"
     >
       <GoogleMap
         mapContainerStyle={mapContainerStyle}

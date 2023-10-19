@@ -1,3 +1,16 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.pac-container {
+  background-color: theme("colors.emerald.500");
+  font-family: Roboto, sans-serif;
+}
+.pac-item,
+.pac-item-query {
+  color: #f7f7f7;
+}
+.pac-item:hover {
+  background: #6666;
+  cursor: pointer;
+}

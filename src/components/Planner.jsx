@@ -4,28 +4,9 @@ import { PlannerContext } from "../App";
 import { atLeastOneNotFull } from "../utils/checkFreshCoordinates";
 import deleteIcon from "../assets/images/x.svg";
 
-// .pac-container {
-//     background-color: #151515;
-//     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-//      Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-//    }
-//    .pac-item,
-//    .pac-item-query {
-//     color: #f7f7f7;
-//    }
-//    .pac-item:hover {
-//     background: #6666;
-//    }
-
 function Planner() {
-  const {
-    stops,
-    addStopApp,
-    stopChangedApp,
-    updateStopApp,
-    removeStopApp,
-    map,
-  } = useContext(PlannerContext);
+  const { stops, addStopApp, stopChangedApp, removeStopApp, map } =
+    useContext(PlannerContext);
   const inputRefs = useRef({});
   const autoCompleteRefs = useRef({});
   const prevStopsLength = useRef({
@@ -170,7 +151,7 @@ function Planner() {
   }, []);
 
   return (
-    <form className="flex min-h-[400px] w-[19rem] flex-col items-center justify-evenly rounded-lg bg-teal-100 p-3">
+    <form className="xs:w-96 mb-2 mr-3 flex min-h-[400px] w-[19rem] flex-col items-center justify-evenly rounded-lg bg-teal-100 p-3 sm:w-[500px] xl:mr-8">
       <h1 className="text-3xl font-semibold text-emerald-500">
         Plan your route
       </h1>
@@ -198,7 +179,7 @@ function Planner() {
                 <label htmlFor="input-dest">Stop:</label>
               )}
               <input
-                className="rounded-md p-1"
+                className="xs:w-64 rounded-md p-1 sm:w-80"
                 ref={(element) => (inputRefs.current[stop.id] = element)}
                 id={`input-${stop.id}`}
                 value={inputValues[stop.id] || ""}
@@ -230,7 +211,9 @@ function Planner() {
               )}
             </div>
             {inputErrors[stop.id].hasError && (
-              <p>{inputErrors[stop.id].message}</p>
+              <p className="xs:pr-[4.6rem] w-full pr-10 text-right text-red-400 sm:pr-[6.5rem] ">
+                {inputErrors[stop.id].message}
+              </p>
             )}
             {/* <button onClick={(e) => handleClick(stop.id, e)}>Focus Me</button> */}
           </div>

@@ -59,7 +59,7 @@ function App() {
 
   const handleApiError = () => {};
   return (
-    <div className="flex min-h-[100dvh] flex-col items-center justify-around bg-gradient-to-r from-teal-500 to-emerald-500 lg:flex-row">
+    <div className="flex min-h-[100dvh] flex-col items-center justify-center bg-gradient-to-r from-teal-500 to-emerald-500 lg:flex-row">
       <PlannerContext.Provider
         value={{
           stops,
