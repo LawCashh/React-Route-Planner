@@ -14,3 +14,20 @@
   background: #6666;
   cursor: pointer;
 }
+
+.loader {
+  border: 1em solid theme("colors.emerald.900");
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  animation: 1s loader linear infinite;
+  position: relative;
+}
+
+@keyframes loader {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

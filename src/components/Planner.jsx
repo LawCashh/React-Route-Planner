@@ -197,7 +197,7 @@ function Planner() {
                 onChange={(e) => {
                   createInputError(
                     stop.id,
-                    "Izaberite mjesto",
+                    "Pick a spot",
                     inputErrors[stop.id].changed,
                   );
                   const newValue = e.target.value;
@@ -207,7 +207,7 @@ function Planner() {
                   if (inputValues[stop.id] === undefined)
                     createInputError(
                       stop.id,
-                      "Izaberite mjesto",
+                      "Pick a spot",
                       inputErrors[stop.id].changed,
                     );
                 }}
@@ -222,7 +222,7 @@ function Planner() {
               )}
             </div>
             {inputErrors[stop.id].hasError && (
-              <p className="xs:pr-[4.6rem] w-full pr-10 text-right text-red-400 sm:pr-[6.5rem] ">
+              <p className="xs:pr-[5.7rem] w-full pr-14 text-right text-red-400 sm:pr-[7.4rem] ">
                 {inputErrors[stop.id].message}
               </p>
             )}

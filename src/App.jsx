@@ -3,6 +3,7 @@ import { LoadScript } from "@react-google-maps/api";
 
 import Planner from "./components/Planner";
 import Map from "./components/Map";
+import Loader from "./ui/Loader";
 
 export const PlannerContext = createContext();
 const libraries = ["places"];
@@ -72,9 +73,7 @@ function App() {
           setMap,
         }}
       >
-        {/*TODO:napravi ova dva da idu preko u imaju backdrop blur, koristi absolute i inset 0, i promjeni loadere
-         {isLoaded && <h1>loaded</h1>}
-        {!isLoaded && <h1>loading</h1>} */}
+        {!isLoaded && <Loader />}
         <LoadScript
           googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
           onLoad={handleApiLoad}
