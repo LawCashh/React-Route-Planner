@@ -1,7 +1,10 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { PlannerContext } from "../App";
-import { atLeastOneNotFull } from "../utils/checkFreshCoordinates";
+import {
+  atLeastOneNotFull,
+  hasInputErrors,
+} from "../utils/checkFreshCoordinates";
 import deleteIcon from "../assets/images/x.svg";
 
 function Planner() {
@@ -151,7 +154,10 @@ function Planner() {
   }, []);
 
   return (
-    <form className="xs:w-96 mb-2 mr-3 flex min-h-[400px] w-[19rem] flex-col items-center justify-evenly rounded-lg bg-teal-100 p-3 sm:w-[500px] xl:mr-8">
+    <form
+      className="xs:w-96 relative mb-3 flex min-h-[400px] w-[19rem] flex-col items-center justify-evenly rounded-lg bg-teal-100 p-3
+     sm:w-[500px] lg:mb-0 lg:mr-3 xl:mr-8"
+    >
       <h1 className="text-3xl font-semibold text-emerald-500">
         Plan your route
       </h1>
@@ -179,7 +185,12 @@ function Planner() {
                 <label htmlFor="input-dest">Stop:</label>
               )}
               <input
-                className="xs:w-64 rounded-md p-1 sm:w-80"
+                className={`xs:w-64 rounded-md p-1 focus:outline-none focus:ring focus:ring-offset-2 sm:w-80 
+                ${
+                  inputErrors[stop.id].hasError
+                    ? "focus:ring-red-300"
+                    : "focus:ring-emerald-300"
+                }`}
                 ref={(element) => (inputRefs.current[stop.id] = element)}
                 id={`input-${stop.id}`}
                 value={inputValues[stop.id] || ""}
@@ -223,17 +234,25 @@ function Planner() {
         onClick={addStop}
         className={`${
           stops.length > 4 ? "my-2" : "my-0"
-        } w-36 rounded-full bg-emerald-500 p-2 text-white`}
+        }  w-36 rounded-full bg-emerald-500 p-2 text-white transition-colors duration-300 focus:bg-emerald-300 focus:outline-none
+         focus:ring focus:ring-emerald-300 focus:ring-offset-2`}
       >
         Add a Stop
       </button>
       <button
         className="inset w-36 rounded-full bg-emerald-500 p-2 text-white disabled:cursor-not-allowed disabled:bg-gray-400"
         onClick={handleShowRoute}
-        disabled={atLeastOneNotFull(stops) ? true : false}
+        disabled={
+          atLeastOneNotFull(stops) || hasInputErrors(inputErrors) ? true : false
+        }
       >
         Show Route
       </button>
+      {atLeastOneNotFull(stops) && (
+        <p className="absolute bottom-[-25px] text-emerald-900">
+          Fill out all the stops.
+        </p>
+      )}
     </form>
   );
 }
